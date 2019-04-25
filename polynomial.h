@@ -127,9 +127,6 @@ public:
     out.remove_trailing_zeroes();
     return out;
   }
-  int degree(polynomial p) {           // the degree of p
-    return p.coefficients.size() - 1;  // this is the highest exponent on x, except when p is identically 0 when it is -1
-  }                                    // in which case it should be interpreted as negative infinity
 
   polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
     if(p == polynomial({0})) {                   // just like dividing ints
@@ -179,6 +176,11 @@ void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the h
   }
   return;
 }
+
+template <class T>
+int polynomial<T>::degree() {            // the degree of p
+  return this->coefficients.size() - 1;  // this is the highest exponent on x, except when p is identically 0 when it is -1
+}                                        // in which case it should be interpreted as negative infinity
 
 template <class T>
 std::ostream& operator<<(std::ostream& out, polynomial<T>& p) { // print in a nice human readable format
