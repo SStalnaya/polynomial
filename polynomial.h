@@ -9,6 +9,7 @@ typedef boost::multiprecision::cpp_rational ratio;
 #include <type_traits>
 #include <string>
 #include <regex>
+#include <algorithm>
 
 template <class T>
 class polynomial {
@@ -20,9 +21,10 @@ public:
   polynomial() {}
   polynomial(std::string s) {           // initialize the polynomial with a string e.g. 3+x^4-2x^3+3x^3
     std::string term;
-    s = std::regex_replace(s, std::regex("-"), "+-");
+    s = std::regex_replace(s, std::regex("(.)-"), "$1+-");
     s = std::regex_replace(s, std::regex("\\+x"), "+1x");
     s = std::regex_replace(s, std::regex("-x"), "-1x");
+    s.erase(std::remove_if(s.begin(), s.end(), [](unsigned char x){return isspace(x) || x == '{' || x == '}' || x == '*';}), s.end());
     std::stringstream t (s);
     while(std::getline(t, term, '+')) { // divide into terms on the above example they will be 3, +x^4, -2x^3, 3x^3
       std::stringstream tern (term);
@@ -37,7 +39,6 @@ public:
         }
         is_first = false;
       }
-      //std::cout << c.first << " yeet " << c.second << " term " << term << std::endl;
       if(c.first == "+") {
         c.first = "1";
       }
@@ -64,7 +65,6 @@ public:
           }
         }
       }
-      std::cout << c.first << " yeet " << c.second << " term " << term << std::endl;
       if(std::stoi(c.second) >= this->coefficients.size()) {
         this->coefficients.resize(std::stoi(c.second) + 1);
       }
