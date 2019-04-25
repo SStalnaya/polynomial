@@ -200,6 +200,20 @@ std::ostream& operator<<(std::ostream& out, polynomial<T>& p) { // print in a ni
         out << "+" << a << "x^" << counter;
       }
     }
+    if(!all_first_were_zero && counter == 1) {
+      if(a < -1) {
+        out << a << "x";
+      }
+      if(a == -1) {
+        out << "-x";
+      }
+      if(a == 1) {
+        out << "+x";
+      }
+      if(a > 1) {
+        out << "+" << a << "x";
+      }
+    }
     if(counter != 0 && all_first_were_zero && a != 0) {
       if(counter != 1) {
         if(a < -1 || a > 1) {
