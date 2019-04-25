@@ -142,9 +142,27 @@ public:
       out += leading_coefficient_ratio * polynomial<int>("")
     }
   }
+  template <class U>
+  polynomial operator*(U u) { // multiply the polynomial by a scalar
+    polynomial<T> out;
+    out.coefficients.resize(this->degree() + 1);
+    unsigned int counter = 0;
+    for(auto a : this->coefficients) {
+      out.coefficients[counter] = u * a;
+      ++counter;
+    }
+    out.remove_trailing_zeroes();
+    return out;
+  }
 
+  int degree();
   void remove_trailing_zeroes();
 };
+
+template <class U, class T>
+polynomial<T> operator*(U u, polynomial<T> p) {
+  return p * u;
+}
 
 template <class T>
 void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
