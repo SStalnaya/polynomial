@@ -65,7 +65,7 @@ public:
           }
         }
       }
-      if(std::stoi(c.second) >= this->coefficients.size()) {
+      if(std::stoi(c.second) > this->degree()) {
         this->coefficients.resize(std::stoi(c.second) + 1);
       }
       coefficients[std::stoi(c.second)] += std::stoi(c.first);
@@ -74,12 +74,12 @@ public:
   }
   polynomial operator*(polynomial p) {
     polynomial<T> out;
-    unsigned int counter1 = this->coefficients.size() - 1;
-    unsigned int counter2 = p.coefficients.size() - 1;
+    unsigned int counter1 = this->degree();
+    unsigned int counter2 = p.degree();
     const unsigned int deg = counter1 + counter2 + 1;
     out.coefficients.resize(deg);
     for(auto a : this->coefficients) {
-      counter2 = p.coefficients.size() - 1;
+      counter2 = p.degree();
       for(auto b : p.coefficients) {
         out.coefficients.at(deg - counter1 - counter2 - 1) += a * b;
         --counter2;
@@ -92,7 +92,7 @@ public:
   polynomial operator+(polynomial p) {
     polynomial<T> out;
     unsigned int counter = 0;
-    if(this->coefficients.size() > p.coefficients.size()) {
+    if(this->degree() > p.degree()) {
       out.coefficients = this->coefficients;
       for(auto a : p.coefficients) {
         out.coefficients[counter] += a;
@@ -111,7 +111,7 @@ public:
   polynomial operator-(polynomial p) {
     polynomial<T> out;
     unsigned int counter = 0;
-    if(this->coefficients.size() > p.coefficients.size()) {
+    if(this->degree() > p.degree()) {
       out.coefficients = this->coefficients;
       for(auto a : p.coefficients) {
         out.coefficients[counter] -= a;
@@ -163,7 +163,7 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 
 template <class T>
 void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
-  unsigned int i = this->coefficients.size() - 1;   // it is important to do this after all operations to ensure the next operations will be correct
+  unsigned int i = this->degree();                  // it is important to do this after all operations to ensure the next operations will be correct
   while(this->coefficients[i] == 0) {
     this->coefficients.resize(i + 1);
     --i;
