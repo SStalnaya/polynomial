@@ -108,6 +108,17 @@ public:
     out.remove_trailing_zeroes();
     return out;
   }
+  polynomial operator-() {
+    polynomial<T> out;
+    out.coefficients.resize(this->degree() + 1);
+    unsigned int counter = 0;
+    for(auto a : this->coefficients) {
+      out.coefficients[counter] = -a;
+      ++counter;
+    }
+    out.remove_trailing_zeroes();
+    return out;
+  }
   polynomial operator-(polynomial p) {
     polynomial<T> out;
     unsigned int counter = 0;
@@ -127,8 +138,24 @@ public:
     out.remove_trailing_zeroes();
     return out;
   }
+  bool operator==(polynomial p) {
+    if(this-> degree() != p.degree()) {
+      return false;
+    }
+    unsigned int counter = 0;
+    for(auto a : this->coefficients) {
+      if(a != p.coefficients[counter]) {
+        return false;
+      }
+      ++counter;
+    }
+    return true;
+  }
+  bool operator!=(polynomial p) {
+    return !(*this == p);
+  }
 
-  polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
+  /*polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
     if(p == polynomial({0})) {                   // just like dividing ints
       throw std::domain_error("Division by 0!");
     }
@@ -138,7 +165,7 @@ public:
       ratio leading_coefficient_ratio = residue.coefficients.front() / p.coefficients.front();
       out += leading_coefficient_ratio * polynomial<int>("")
     }
-  }
+  }*/
   template <class U>
   polynomial operator*(U u) { // multiply the polynomial by a scalar
     polynomial<T> out;
