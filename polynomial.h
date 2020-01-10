@@ -329,5 +329,13 @@ void factor(polynomial<T> in) {
   return;
 }
 
+template <class T>
+polynomial<T> monomial(T a, int b) { // a * x ^ b
+  polynomial<T> out;
+  out.coefficients.resize(b + 1);
+  out.coefficients[b] = a;
+  return out;
+}
+
 #endif // POLYNOMIAL_H_INCLUDED
 
