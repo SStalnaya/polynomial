@@ -210,7 +210,7 @@ int polynomial<T>::degree() {            // the degree of p
 }                                        // in which case it should be interpreted as negative infinity
 
 template <class T>
-std::ostream& operator<<(std::ostream& out, polynomial<T>& p) { // print in a nice human readable format
+std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print in a nice human readable format
   unsigned int counter = 0;
   bool all_first_were_zero = true;
   for(auto a : p.coefficients) {
