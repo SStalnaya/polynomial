@@ -10,12 +10,16 @@ typedef boost::multiprecision::cpp_rational ratio;
 #include <string>
 #include <regex>
 #include <algorithm>
+#include <initializer_list>
 
 template <class T>
 class polynomial {
 public:
   std::vector<T> coefficients;
   polynomial(std::vector<T> in) : coefficients(in) {
+    this->remove_trailing_zeroes();
+  }
+  polynomial(std::initializer_list<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
   }
   polynomial() {}
