@@ -22,6 +22,13 @@ public:
   polynomial(std::initializer_list<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
   }
+  template <class U>
+  polynomial(const polynomial<U>& in) {
+    for(auto x : in.coefficients) {
+      this->coefficients.push_back(static_cast<T>(x));
+    }
+    this->remove_trailing_zeroes();
+  }
   polynomial() {}
   polynomial(std::string s) {           // initialize the polynomial with a string e.g. 3+x^4-2x^3+3x^3
     std::string term;
@@ -159,22 +166,48 @@ public:
     return !(*this == p);
   }
 
-  /*polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
-    if(p == polynomial({0})) {                   // just like dividing ints
+  polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
+    if(p.degree() == -1) {                       // just like dividing ints
       throw std::domain_error("Division by 0!");
     }
-    polynomial<ratio> residue = this;
+    polynomial<ratio> residue (*this);
     polynomial<ratio> out;
-    while(degree(reside) > degree(p)) {
-      ratio leading_coefficient_ratio = residue.coefficients.front() / p.coefficients.front();
-      out += leading_coefficient_ratio * polynomial<int>("")
+    polynomial<ratio> p1 (p);
+    int n = residue.degree() - p.degree();
+    if(n < 0) {
+      polynomial<int> o;
+      return o;
     }
-  }*/
+    while(n >= 0) {
+      ratio leading_coefficient_ratio = residue.coefficients.back() / p.coefficients.back();
+      std::cout << residue.coefficients.back() << " " << p.coefficients.back() << "\n";
+      auto m = monomial<ratio>(leading_coefficient_ratio, n);
+      out = out + m;
+      std::cout << "\n";
+      for(auto x : residue.coefficients) {
+        std::cout << x << " ";
+      }
+      std::cout << "\n";
+      residue = m * p1 - residue;
+      residue.remove_trailing_zeroes();
+      --n;
+    }
+    ratio r = out.coefficients.back();
+    /*std::cout << "\n";
+    for(auto x : out.coefficients) {
+      std::cout << x << " ";
+    }
+    std::cout << "\n";*/
+    //int d = denominator(r);
+    //std::cout << out << std::endl;
+    //out = out * d;
+    polynomial<int> o (out);
+    return o;
+  }
   template <class U>
   polynomial operator*(U u) { // multiply the polynomial by a scalar
     polynomial<T> out;
-    out.coefficients.resize(this->degree() + 1);
-    unsigned int counter = 0;
+    int counter = 0;
     for(auto a : this->coefficients) {
       out.coefficients[counter] = u * a;
       ++counter;
@@ -185,6 +218,9 @@ public:
 
   int degree();
   void remove_trailing_zeroes();
+  template <class U>
+  polynomial<U> monomial(U a, int b);
+  polynomial monomial(T a, int b);
 };
 
 template <class U, class T>
@@ -196,7 +232,7 @@ template <class T>
 void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
   unsigned int i = this->degree();                  // it is important to do this after all operations to ensure the next operations will be correct
   while(this->coefficients[i] == 0) {
-    this->coefficients.resize(i + 1);
+    this->coefficients.resize(i);
     --i;
     if(i == 0) {
       if(this->coefficients[0] == 0) {
@@ -288,7 +324,7 @@ std::vector<int> factor(int n) { // the positive divisors of n
     return factor(-n);
   }
   std::vector<int> out;
-  for(unsigned int a = 1; a != n + 1; ++a) {
+  for(int a = 1; a != n + 1; ++a) {
     if(n % a == 0) {
       out.push_back(a);
     }
@@ -329,7 +365,14 @@ void factor(polynomial<T> in) {
   return;
 }
 
-template <class T>
+template <typename T> template <typename U>
+polynomial<U> polynomial<T>::monomial(U a, int b) { // a * x ^ b
+  polynomial<U> out;
+  out.coefficients.resize(b + 1);
+  out.coefficients[b] = a;
+  return out;
+}
+template <typename T>
 polynomial<T> monomial(T a, int b) { // a * x ^ b
   polynomial<T> out;
   out.coefficients.resize(b + 1);
