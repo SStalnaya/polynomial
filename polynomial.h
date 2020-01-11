@@ -5,7 +5,6 @@
 #include <ostream>
 #include <numeric>
 #include <boost/multiprecision/cpp_int.hpp>
-typedef boost::multiprecision::cpp_rational ratio;
 #include <type_traits>
 #include <string>
 #include <regex>
@@ -14,6 +13,7 @@ typedef boost::multiprecision::cpp_rational ratio;
 
 template <class T>
 class polynomial {
+  using ratio = boost::multiprecision::cpp_rational;
 public:
   std::vector<T> coefficients;
   polynomial(std::vector<T> in) : coefficients(in) {
@@ -39,7 +39,7 @@ public:
     std::stringstream t (s);
     while(std::getline(t, term, '+')) { // divide into terms on the above example they will be 3, +x^4, -2x^3, 3x^3
       std::stringstream tern (term);
-      std::pair<std::string, std::string> c;         // pair (coeffient, exponent) of the term
+      std::pair<std::string, std::string> c;         // pair (coefficient, exponent) of the term
       std::string d;
       bool is_first = true;
       while(std::getline(tern, d, 'x')) {
