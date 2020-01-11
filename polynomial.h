@@ -76,6 +76,9 @@ public:
             c.first = "1";
           }
         }
+        if(c.first.front() == 'x') {
+          c.first = "1";
+        }
       }
       if(std::stoi(c.second) > this->degree()) {
         this->coefficients.resize(std::stoi(c.second) + 1);
@@ -208,10 +211,11 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 
 template <class T>
 void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
-  unsigned int i = this->degree();                  // it is important to do this after all operations to ensure the next operations will be correct
+  int i = this->degree();                  // it is important to do this after all operations to ensure the next operations will be correct
   while(this->coefficients[i] == 0) {
     this->coefficients.resize(i);
     --i;
+    if(i == -1) break;
     if(i == 0) {
       if(this->coefficients[0] == 0) {
         this->coefficients.resize(0);
