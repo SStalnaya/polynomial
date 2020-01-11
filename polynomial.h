@@ -102,23 +102,16 @@ public:
     return out;
   }
   polynomial operator+(polynomial p) {
-    polynomial<T> out;
-    unsigned int counter = 0;
-    if(this->degree() > p.degree()) {
-      out.coefficients = this->coefficients;
-      for(auto a : p.coefficients) {
-        out.coefficients[counter] += a;
-        ++counter;
+    if(this->degree() >= p.degree()) {
+      auto cp = *this;
+      for(auto [a,b] : ranges::v3::view::zip(cp.coefficients, p.coefficients)) {
+        a += b;
       }
+      cp.remove_trailing_zeroes();
+      return cp;
     } else {
-      out = p;
-      for(auto a : this->coefficients) {
-        out.coefficients[counter] += a;
-        ++counter;
-      }
+      return p + *this;
     }
-    out.remove_trailing_zeroes();
-    return out;
   }
   polynomial operator-() {
     auto cp = *this;
@@ -130,7 +123,9 @@ public:
   }
   polynomial operator-(polynomial p) {
     auto cp = *this;
-    return p + (-cp);
+    cp = cp + (-p);
+    cp.remove_trailing_zeroes();
+    return cp;
   }
   bool operator==(polynomial p) {
     if(this-> degree() != p.degree()) {
