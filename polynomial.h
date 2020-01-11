@@ -10,6 +10,7 @@
 #include <regex>
 #include <algorithm>
 #include <initializer_list>
+#include <range/v3/all.hpp>
 
 template <class T>
 class polynomial {
@@ -120,45 +121,25 @@ public:
     return out;
   }
   polynomial operator-() {
-    polynomial<T> out;
-    out.coefficients.resize(this->degree() + 1);
-    unsigned int counter = 0;
-    for(auto a : this->coefficients) {
-      out.coefficients[counter] = -a;
-      ++counter;
+    auto cp = *this;
+    for(auto &a : cp.coefficients) {
+      a = -a;
     }
-    out.remove_trailing_zeroes();
-    return out;
+    cp.remove_trailing_zeroes();
+    return cp;
   }
   polynomial operator-(polynomial p) {
-    polynomial<T> out;
-    unsigned int counter = 0;
-    if(this->degree() > p.degree()) {
-      out.coefficients = this->coefficients;
-      for(auto a : p.coefficients) {
-        out.coefficients[counter] -= a;
-        ++counter;
-      }
-    } else {
-      out = p;
-      for(auto a : this->coefficients) {
-        out.coefficients[counter] -= a;
-        ++counter;
-      }
-    }
-    out.remove_trailing_zeroes();
-    return out;
+    auto cp = *this;
+    return p + (-cp);
   }
   bool operator==(polynomial p) {
     if(this-> degree() != p.degree()) {
       return false;
     }
-    unsigned int counter = 0;
-    for(auto a : this->coefficients) {
-      if(a != p.coefficients[counter]) {
+    for(auto [a,b] : ranges::v3::view::zip(this->coefficients, p.coefficients)) {
+      if(a != b) {
         return false;
       }
-      ++counter;
     }
     return true;
   }
