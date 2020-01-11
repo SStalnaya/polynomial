@@ -158,13 +158,17 @@ public:
       ratio leading_coefficient_ratio = residue.coefficients.back() / p.coefficients.back();
       auto m = monomial<ratio>(leading_coefficient_ratio, n);
       out = out + m;
-      residue = m * p1 - residue;
+      residue = residue - m * p1;
       residue.remove_trailing_zeroes();
       --n;
     }
     ratio r = out.coefficients.back();
     polynomial<int> o (out);
     return o;
+  }
+  polynomial<int> operator%(polynomial<int> p) {
+    auto q = *this / p;
+    return *this - p * q;
   }
   void operator+=(polynomial p) {
     *this = *this + p;
