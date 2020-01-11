@@ -166,7 +166,7 @@ public:
     return !(*this == p);
   }
 
-  polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / d but we ignore the residue r and return s
+  polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / q but we ignore the residue r and return s
     if(p.degree() == -1) {                       // just like dividing ints
       throw std::domain_error("Division by 0!");
     }
@@ -180,29 +180,27 @@ public:
     }
     while(n >= 0) {
       ratio leading_coefficient_ratio = residue.coefficients.back() / p.coefficients.back();
-      std::cout << residue.coefficients.back() << " " << p.coefficients.back() << "\n";
       auto m = monomial<ratio>(leading_coefficient_ratio, n);
       out = out + m;
-      std::cout << "\n";
-      for(auto x : residue.coefficients) {
-        std::cout << x << " ";
-      }
-      std::cout << "\n";
       residue = m * p1 - residue;
       residue.remove_trailing_zeroes();
       --n;
     }
     ratio r = out.coefficients.back();
-    /*std::cout << "\n";
-    for(auto x : out.coefficients) {
-      std::cout << x << " ";
-    }
-    std::cout << "\n";*/
-    //int d = denominator(r);
-    //std::cout << out << std::endl;
-    //out = out * d;
     polynomial<int> o (out);
     return o;
+  }
+  void operator+=(polynomial p) {
+    *this = *this + p;
+  }
+  void operator-=(polynomial p) {
+    *this = *this - p;
+  }
+  void operator*=(polynomial p) {
+    *this = *this * p;
+  }
+  void operator/=(polynomial p) {
+    *this = *this / p;
   }
   template <class U>
   polynomial operator*(U u) { // multiply the polynomial by a scalar
