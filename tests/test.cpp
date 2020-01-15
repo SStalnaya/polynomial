@@ -1,7 +1,7 @@
 #include "polynomial.h"
 #include <gtest/gtest.h>
 
-TEST(constructor, stringconstructor) {
+TEST(constructors, string) {
   polynomial<int> p1 ("1+x");
   polynomial<int> q1 {1,1};
   EXPECT_EQ(p1, q1);
@@ -41,6 +41,74 @@ TEST(constructor, stringconstructor) {
   polynomial<int> p13 ("4x^3");
   polynomial<int> q13 {0,0,0,4};
   EXPECT_EQ(p13, q13);
+  polynomial<int> p14 ("x-x");
+  polynomial<int> q14 {};
+  EXPECT_EQ(p14, q14);
+  polynomial<int> p15 ("x^2+x");
+  polynomial<int> q15 {0,1,1};
+  EXPECT_EQ(p15, q15);
+  polynomial<int> p16 ("x^3-2");
+  polynomial<int> q16 {-2,0,0,1};
+  EXPECT_EQ(p16, q16);
+  polynomial<int> p17 ("x^2-x^3");
+  polynomial<int> q17 {0,0,1,-1};
+  EXPECT_EQ(p17, q17);
+  polynomial<int> p18 ("x^4-3x");
+  polynomial<int> q18 {0,-3,0,0,1};
+  EXPECT_EQ(p18, q18);
+  polynomial<int> p19 ("1+x-4x^2+x^3-4x-5x^3+7+4x^2");
+  polynomial<int> q19 {8,-3,0,-4};
+  EXPECT_EQ(p19, q19);
+  polynomial<int> p20 ("-3x+2");
+  polynomial<int> q20 {2,-3};
+  EXPECT_EQ(p20, q20);
+  polynomial<int> p21 ("-5x^2+x+1");
+  polynomial<int> q21 {1,1,-5};
+  EXPECT_EQ(p21, q21);
+}
+
+TEST(operators,addition) {
+  polynomial<int> p1 {1};
+  polynomial<int> q1 {1};
+  polynomial<int> r1 {2};
+  EXPECT_EQ(p1 + q1, r1);
+  polynomial<int> p2 {0,1};
+  polynomial<int> q2 {1,0};
+  polynomial<int> r2 {1,1};
+  EXPECT_EQ(p2 + q2, r2);
+  polynomial<int> p3 {3};
+  polynomial<int> q3 {-3};
+  polynomial<int> r3 {};
+  EXPECT_EQ(p3 + q3, r3);
+  polynomial<int> p4 {1,2,2};
+  polynomial<int> q4 {0,1,-2};
+  polynomial<int> r4 {1,3};
+  EXPECT_EQ(p4 + q4, r4);
+  polynomial<int> p5 {4,-2,5,1,0,-1,4};
+  polynomial<int> q5 {-2,2,4,7,3,1,-4};
+  polynomial<int> r5 {2,0,9,8,3};
+  EXPECT_EQ(p5 + q5, r5);
+  polynomial<int> p6 {1};
+  polynomial<int> q6 {-1};
+  polynomial<int> r6 {};
+  EXPECT_EQ(p6 + q6, r6);
+}
+
+TEST(operators,negation) {
+  polynomial<int> p1 {1};
+  polynomial<int> q1 {-1};
+  EXPECT_EQ(-p1, q1);
+}
+
+TEST(operators,subtraction) {
+  polynomial<int> p1 {1};
+  polynomial<int> q1 {2};
+  polynomial<int> r1 {-1};
+  EXPECT_EQ(p1 - q1, r1);
+  polynomial<int> p2 {1};
+  polynomial<int> q2 {-1};
+  polynomial<int> r2 {2};
+  EXPECT_EQ(p2 - q2, r2);
 }
 
 int main(int argc, char **argv) {
