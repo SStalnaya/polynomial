@@ -87,7 +87,7 @@ public:
     }
     this->remove_trailing_zeroes();
   }
-  polynomial operator*(polynomial p) {
+  polynomial operator*(polynomial p) const {
     polynomial<T> out;
     unsigned int counter1 = this->degree();
     unsigned int counter2 = p.degree();
@@ -104,7 +104,7 @@ public:
     out.remove_trailing_zeroes();
     return out;
   }
-  polynomial operator+(polynomial p) {
+  polynomial operator+(polynomial p) const {
     if(this->degree() >= p.degree()) {
       auto cp = *this;
       for(auto [a,b] : ranges::v3::view::zip(cp.coefficients, p.coefficients)) {
@@ -116,7 +116,7 @@ public:
       return p + *this;
     }
   }
-  polynomial operator-() {
+  polynomial operator-() const {
     auto cp = *this;
     for(auto &a : cp.coefficients) {
       a = -a;
@@ -124,13 +124,13 @@ public:
     cp.remove_trailing_zeroes();
     return cp;
   }
-  polynomial operator-(polynomial p) {
+  polynomial operator-(polynomial p) const {
     auto cp = *this;
     cp = cp + (-p);
     cp.remove_trailing_zeroes();
     return cp;
   }
-  bool operator==(polynomial p) {
+  bool operator==(polynomial p) const {
     if(this-> degree() != p.degree()) {
       return false;
     }
@@ -141,12 +141,12 @@ public:
     }
     return true;
   }
-  bool operator!=(polynomial p) {
+  bool operator!=(polynomial p) const {
     return !(*this == p);
   }
 
-  polynomial<int> operator/(polynomial<int> p) { // mathematically, p / q = s + r / q but we ignore the residue r and return s
-    if(p.degree() == -1) {                       // just like dividing ints
+  polynomial<int> operator/(polynomial<int> p) const { // mathematically, p / q = s + r / q but we ignore the residue r and return s
+    if(p.degree() == -1) {                             // just like dividing ints
       throw std::domain_error("Division by 0!");
     }
     polynomial<ratio> residue (*this);
@@ -169,24 +169,24 @@ public:
     polynomial<int> o (out);
     return o;
   }
-  polynomial<int> operator%(polynomial<int> p) {
+  polynomial<int> operator%(polynomial<int> p) const {
     auto q = *this / p;
     return *this - p * q;
   }
-  void operator+=(polynomial p) {
+  void operator+=(polynomial p) const {
     *this = *this + p;
   }
-  void operator-=(polynomial p) {
+  void operator-=(polynomial p) const {
     *this = *this - p;
   }
-  void operator*=(polynomial p) {
+  void operator*=(polynomial p) const {
     *this = *this * p;
   }
-  void operator/=(polynomial p) {
+  void operator/=(polynomial p) const {
     *this = *this / p;
   }
   template <class U>
-  polynomial operator*(U u) { // multiply the polynomial by a scalar
+  polynomial operator*(U u) const { // multiply the polynomial by a scalar
     polynomial<T> out;
     int counter = 0;
     for(auto a : this->coefficients) {
@@ -197,11 +197,10 @@ public:
     return out;
   }
 
-  int degree();
+  int degree() const;
   void remove_trailing_zeroes();
   template <class U>
-  polynomial<U> monomial(U a, int b);
-  polynomial monomial(T a, int b);
+  polynomial<U> monomial(U a, int b) const;
 };
 
 template <class U, class T>
@@ -210,8 +209,8 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 }
 
 template <class T>
-void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
-  int i = this->degree();                  // it is important to do this after all operations to ensure the next operations will be correct
+void polynomial<T>::remove_trailing_zeroes() {  // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
+  int i = this->degree();                       // it is important to do this after all operations to ensure the next operations will be correct
   while(this->coefficients[i] == 0) {
     this->coefficients.resize(i);
     --i;
@@ -227,7 +226,7 @@ void polynomial<T>::remove_trailing_zeroes() {      // if the coeffient on the h
 }
 
 template <class T>
-int polynomial<T>::degree() {            // the degree of p
+int polynomial<T>::degree() const {      // the degree of p
   return this->coefficients.size() - 1;  // this is the highest exponent on x, except when p is identically 0 when it is -1
 }                                        // in which case it should be interpreted as negative infinity
 
@@ -348,14 +347,14 @@ void factor(polynomial<T> in) {
 }
 
 template <typename T> template <typename U>
-polynomial<U> polynomial<T>::monomial(U a, int b) { // a * x ^ b
+polynomial<U> polynomial<T>::monomial(U a, int b) const { // a * x ^ b
   polynomial<U> out;
   out.coefficients.resize(b + 1);
   out.coefficients[b] = a;
   return out;
 }
 template <typename T>
-polynomial<T> monomial(T a, int b) { // a * x ^ b
+polynomial<T> monomial(T a, int b) {
   polynomial<T> out;
   out.coefficients.resize(b + 1);
   out.coefficients[b] = a;
