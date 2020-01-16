@@ -16,6 +16,7 @@ template <class T>
 class polynomial {
   using ratio = boost::multiprecision::cpp_rational;
 public:
+  std::string var;
   std::vector<T> coefficients;
   polynomial(std::vector<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
@@ -232,71 +233,28 @@ int polynomial<T>::degree() const {      // the degree of p
 
 template <class T>
 std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print in a nice human readable format
-  unsigned int counter = 0;
-  bool all_first_were_zero = true;
-  for(auto a : p.coefficients) {
-    //std::cout << a << std::endl;
-    if(!all_first_were_zero && counter != 0 && counter != 1) {
-      if(a < -1) {
-        out << a << "x^" << counter;
-      }
-      if(a == -1) {
-        out << "-x^" << counter;
-      }
-      if(a == 1) {
-        out << "+x^" << counter;
-      }
-      if(a > 1) {
-        out << "+" << a << "x^" << counter;
-      }
+  auto var = p.var;
+  if(var == "") {
+    var = "x";
+  }
+  std::ostringstream stream;
+  for(unsigned int i = 0; i != p.coefficients.size(); ++i) {
+      auto a = p.coefficients[i];
+    if(a > 0) {
+      stream << "+" << a << var << "^" << i;
+    } else {
+      stream << a << var << "^" << i;
     }
-    if(!all_first_were_zero && counter == 1) {
-      if(a < -1) {
-        out << a << "x";
-      }
-      if(a == -1) {
-        out << "-x";
-      }
-      if(a == 1) {
-        out << "+x";
-      }
-      if(a > 1) {
-        out << "+" << a << "x";
-      }
-    }
-    if(counter != 0 && all_first_were_zero && a != 0) {
-      if(counter != 1) {
-        if(a < -1 || a > 1) {
-          out << a << "x^" << counter;
-        }
-        if(a == -1) {
-          out << "x^" << counter;
-        }
-        if(a == 1) {
-          out << "x^" << counter;
-        }
-      } else {
-        if(a < -1 || a > 1) {
-          out << a << "x";
-        }
-        if(a == -1) {
-          out << "x";
-        }
-        if(a == 1) {
-          out << "x";
-        }
-      }
-      all_first_were_zero = false;
-    }
-    if(counter == 0 && a != 0) {
-      out << a;
-      all_first_were_zero = false;
-    }
-    ++counter;
   }
   if(p.coefficients.empty()) {
     out << "0";
   }
+  std::string s = stream.str();
+  s = std::regex_replace(s, std::regex("^[+-]"), "");
+  s = std::regex_replace(s, std::regex("x\\^0"), "");
+  s = std::regex_replace(s, std::regex("\\^1"), "");
+  s = std::regex_replace(s, std::regex("1x"), "x");
+  out << s;
   return out;
 }
 
