@@ -186,6 +186,9 @@ public:
   void operator/=(polynomial p) const {
     *this = *this / p;
   }
+  void operator%=(polynomial p) const {
+    *this = *this % p;
+  }
   template <class U>
   polynomial operator*(U u) const { // multiply the polynomial by a scalar
     polynomial<T> out;
