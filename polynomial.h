@@ -245,7 +245,7 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
       auto a = p.coefficients[i];
     if(a > 0) {
       stream << "+" << a << var << "^" << i;
-    } else {
+    } else if(a != 0){
       stream << a << var << "^" << i;
     }
   }
