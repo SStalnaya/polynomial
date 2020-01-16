@@ -15,9 +15,9 @@
 template <class T>
 class polynomial {
   using ratio = boost::multiprecision::cpp_rational;
-public:
-  std::string var;
   std::vector<T> coefficients;
+  std::string var;
+public:
   polynomial(std::vector<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
   }
@@ -189,6 +189,10 @@ public:
   void operator%=(polynomial p) const {
     *this = *this % p;
   }
+
+  template<class U>
+  friend std::ostream& operator<<(std::ostream& out, const polynomial<U>& p);
+
   template <class U>
   polynomial operator*(U u) const { // multiply the polynomial by a scalar
     polynomial<T> out;
