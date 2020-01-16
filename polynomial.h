@@ -250,7 +250,7 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
     out << "0";
   }
   std::string s = stream.str();
-  s = std::regex_replace(s, std::regex("^[+-]"), "");
+  s = std::regex_replace(s, std::regex("^\\+"), "");
   s = std::regex_replace(s, std::regex("x\\^0"), "");
   s = std::regex_replace(s, std::regex("\\^1"), "");
   s = std::regex_replace(s, std::regex("1x"), "x");
