@@ -173,7 +173,22 @@ TEST(operators,stream_output) {
   EXPECT_EQ(o1.str(), s1.str());*/
 }
 
+TEST(operators,multiplication) {
+  polynomial<int> p1 {1,1};
+  polynomial<int> q1 {1,-1};
+  polynomial<int> r1 {1,0,-1};
+  EXPECT_EQ(p1 * q1, r1);
+  polynomial<int> p2 {1,4, 2};
+  polynomial<int> q2 {};
+  polynomial<int> r2 {};
+  EXPECT_EQ(p2 * q2, r2);
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
+  polynomial<int> p {1,2};
+  std::vector<polynomial<int>> v {p, p};
+  polynomial<polynomial<int>> multivar (v);
+  //std::cout << multivar << "\n";
   return RUN_ALL_TESTS();
 }

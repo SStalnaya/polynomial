@@ -18,6 +18,7 @@ class polynomial {
   std::vector<T> coefficients;
   std::string var;
 public:
+  // ------------------------------------------------ CONSTRUCTORS ------------------------------------------------ //
   polynomial(std::vector<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
   }
@@ -88,6 +89,7 @@ public:
     }
     this->remove_trailing_zeroes();
   }
+  // ------------------------------------------------- OPERATORS -------------------------------------------------- //
   polynomial operator*(polynomial p) const {
     polynomial<T> out;
     unsigned int counter1 = this->degree();
@@ -174,6 +176,30 @@ public:
     auto q = *this / p;
     return *this - p * q;
   }
+  template <class U>
+  bool operator>=(polynomial<U> p) const {
+    if(this->degree() > p.degree()) {
+      return this->coefficients.back() > static_cast<U>(0);
+    }
+    if(this->degree() < p.degree()) {
+      return p.coefficients.back() > static_cast<U>(0);
+    }
+    for(int i = this->degree(); i >= 0; --i) {
+      if(this->coefficients[i] != p.coefficients[i]) {
+        return this->coefficients[i] > p.coefficients[i];
+      }
+    }
+    return true;
+  }
+  bool operator>(polynomial p) const {
+    return (*this >= p) && (*this != p);
+  }
+  bool operator<=(polynomial p) const {
+    return p >= *this;
+  }
+  bool operator<(polynomial p) const {
+    return p > *this;
+  }
   void operator+=(polynomial p) const {
     *this = *this + p;
   }
@@ -205,10 +231,13 @@ public:
     return out;
   }
 
+  // ------------------------------------------------ OTHER FUNCTIONS --------------------------------------------- //
+
   int degree() const;
-  void remove_trailing_zeroes();
   template <class U>
   polynomial<U> monomial(U a, int b) const;
+private:
+  void remove_trailing_zeroes();
 };
 
 template <class U, class T>
@@ -219,12 +248,12 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 template <class T>
 void polynomial<T>::remove_trailing_zeroes() {  // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
   int i = this->degree();                       // it is important to do this after all operations to ensure the next operations will be correct
-  while(this->coefficients[i] == 0) {
+  while(this->coefficients[i] == static_cast<T>(0)) {
     this->coefficients.resize(i);
     --i;
     if(i == -1) break;
     if(i == 0) {
-      if(this->coefficients[0] == 0) {
+      if(this->coefficients[0] == static_cast<T>(0)) {
         this->coefficients.resize(0);
       }
       break;
@@ -247,9 +276,9 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
   std::ostringstream stream;
   for(unsigned int i = 0; i != p.coefficients.size(); ++i) {
       auto a = p.coefficients[i];
-    if(a > 0) {
+    if(a > static_cast<T>(0)) {
       stream << "+" << a << var << "^" << i;
-    } else if(a != 0){
+    } else if(a != static_cast<T>(0)){
       stream << a << var << "^" << i;
     }
   }
