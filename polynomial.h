@@ -200,19 +200,19 @@ public:
   bool operator<(polynomial p) const {
     return p > *this;
   }
-  void operator+=(polynomial p) const {
+  void operator+=(polynomial p) {
     *this = *this + p;
   }
-  void operator-=(polynomial p) const {
+  void operator-=(polynomial p) {
     *this = *this - p;
   }
-  void operator*=(polynomial p) const {
+  void operator*=(polynomial p) {
     *this = *this * p;
   }
-  void operator/=(polynomial p) const {
+  void operator/=(polynomial p) {
     *this = *this / p;
   }
-  void operator%=(polynomial p) const {
+  void operator%=(polynomial p) {
     *this = *this % p;
   }
 
@@ -236,6 +236,7 @@ public:
   int degree() const;
   template <class U>
   polynomial<U> monomial(U a, int b) const;
+  void set_var(std::string s);
 private:
   void remove_trailing_zeroes();
 };
@@ -248,12 +249,12 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 template <class T>
 void polynomial<T>::remove_trailing_zeroes() {  // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
   int i = this->degree();                       // it is important to do this after all operations to ensure the next operations will be correct
-  while(this->coefficients[i] == static_cast<T>(0)) {
+  while(this->coefficients[i] == T{0}) {
     this->coefficients.resize(i);
     --i;
     if(i == -1) break;
     if(i == 0) {
-      if(this->coefficients[0] == static_cast<T>(0)) {
+      if(this->coefficients[0] == T{0}) {
         this->coefficients.resize(0);
       }
       break;
@@ -268,6 +269,27 @@ int polynomial<T>::degree() const {      // the degree of p
 }                                        // in which case it should be interpreted as negative infinity
 
 template <class T>
+void polynomial<T>::set_var(std::string s) {
+  this->var = s;
+}
+
+template <class T>
+void append(std::ostringstream& stream, T a) {
+  if(a > 0) {
+    stream << "+" << a;
+  } else if(a != 0){
+    stream << a;
+  }
+}
+
+template <class T>
+void append(std::ostringstream& stream, polynomial<T> a) {
+  if(a != polynomial<int>{0}) {
+    stream << "+(" << a << ")";
+  }
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print in a nice human readable format
   auto var = p.var;
   if(var == "") {
@@ -275,21 +297,18 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
   }
   std::ostringstream stream;
   for(unsigned int i = 0; i != p.coefficients.size(); ++i) {
-      auto a = p.coefficients[i];
-    if(a > static_cast<T>(0)) {
-      stream << "+" << a << var << "^" << i;
-    } else if(a != static_cast<T>(0)){
-      stream << a << var << "^" << i;
-    }
+    auto a = p.coefficients[i];
+    append(stream, a);
+    stream << var << "^" << i;
   }
   if(p.coefficients.empty()) {
     out << "0";
   }
   std::string s = stream.str();
   s = std::regex_replace(s, std::regex("^\\+"), "");
-  s = std::regex_replace(s, std::regex("x\\^0"), "");
+  s = std::regex_replace(s, std::regex(var + "\\^0"), "");
   s = std::regex_replace(s, std::regex("\\^1"), "");
-  s = std::regex_replace(s, std::regex("1x"), "x");
+  s = std::regex_replace(s, std::regex("1" + var), var);
   out << s;
   return out;
 }
