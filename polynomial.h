@@ -296,13 +296,11 @@ void append(std::ostringstream& stream, T a) {
 
 template <class T>
 void append(std::ostringstream& stream, polynomial<T> a) {
-  if(a != polynomial<T>{0}) {
-    auto var = a.var;
-    if(var == "") {
-      var = "x";
-    }
-    stream << "+(" << a << ")";
+  auto var = a.var;
+  if(var == "") {
+    var = "x";
   }
+  stream << "+(" << a << ")";
 }
 
 template <class T>
