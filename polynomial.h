@@ -2,7 +2,9 @@
 #define POLYNOMIAL_H_INCLUDED
 
 #include <algorithm>
-#include <boost/multiprecision/cpp_int.hpp>
+#if __has_include(<boost/multiprecision/cpp_int.hpp>)
+  #include <boost/multiprecision/cpp_int.hpp>
+#endif
 #include <complex>
 #include <initializer_list>
 #include <numeric>
@@ -15,7 +17,9 @@
 
 template<class T>
 class polynomial {
+  #ifdef BOOST_MP_CPP_INT_HPP
   using ratio = boost::multiprecision::cpp_rational;
+  #endif
   std::vector<T> coefficients;
 
  public:
@@ -150,6 +154,7 @@ class polynomial {
   }
   bool operator!=(polynomial p) const { return !(*this == p); }
 
+  #ifdef BOOST_MP_CPP_INT_HPP
   polynomial<int> operator/(polynomial<int> p) const {
     // mathematically, p / q = s + r / q but we ignore the residue r and return s
     // just like dividing ints
@@ -176,6 +181,8 @@ class polynomial {
     polynomial<int> o(out);
     return o;
   }
+  #endif
+
   polynomial<int> operator%(polynomial<int> p) const {
     auto q = *this / p;
     return *this - p * q;
@@ -366,6 +373,7 @@ U evaluate(polynomial<T> p, U x) {  // evaluate P at x
   return result;
 }
 
+#ifdef BOOST_MP_CPP_INT_HPP
 template<class T>
 void factor(polynomial<T> in) {
   // use the rational root test to eliminate linear factors
@@ -388,6 +396,7 @@ void factor(polynomial<T> in) {
   }
   return;
 }
+#endif
 
 template<typename T>
 template<typename U>
