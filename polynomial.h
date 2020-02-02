@@ -16,8 +16,8 @@ template <class T>
 class polynomial {
   using ratio = boost::multiprecision::cpp_rational;
   std::vector<T> coefficients;
-  std::string var;
 public:
+  std::string var;
   // ------------------------------------------------ CONSTRUCTORS ------------------------------------------------ //
   polynomial(std::vector<T> in) : coefficients(in) {
     this->remove_trailing_zeroes();
@@ -129,7 +129,7 @@ public:
   }
   polynomial operator-(polynomial p) const {
     auto cp = *this;
-    cp = cp + (-p);
+    cp += -p;
     cp.remove_trailing_zeroes();
     return cp;
   }
@@ -162,8 +162,8 @@ public:
     }
     while(n >= 0) {
       ratio leading_coefficient_ratio = residue.coefficients.back() / p.coefficients.back();
-      auto m = monomial<ratio>(leading_coefficient_ratio, n);
-      out = out + m;
+      auto m = monomial(leading_coefficient_ratio, n);
+      out += m;
       residue = residue - m * p1;
       residue.remove_trailing_zeroes();
       --n;
@@ -237,6 +237,7 @@ public:
   template <class U>
   polynomial<U> monomial(U a, int b) const;
   void set_var(std::string s);
+  void set_var(std::vector<std::string> list);
 private:
   void remove_trailing_zeroes();
 };
@@ -274,17 +275,32 @@ void polynomial<T>::set_var(std::string s) {
 }
 
 template <class T>
+void polynomial<T>::set_var(std::vector<std::string> list) {
+  this->set_var(list[0]);
+  list.erase(list.begin());
+  if constexpr(std::is_compound<T>::value) {
+    for(auto& p : this->coefficients) {
+      p.set_var(list);
+    }
+  }
+}
+
+template <class T>
 void append(std::ostringstream& stream, T a) {
-  if(a > 0) {
+  if(a > T{0}) {
     stream << "+" << a;
-  } else if(a != 0){
+  } else {
     stream << a;
   }
 }
 
 template <class T>
 void append(std::ostringstream& stream, polynomial<T> a) {
-  if(a != polynomial<int>{0}) {
+  if(a != polynomial<T>{0}) {
+    auto var = a.var;
+    if(var == "") {
+      var = "x";
+    }
     stream << "+(" << a << ")";
   }
 }
@@ -298,17 +314,22 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
   std::ostringstream stream;
   for(unsigned int i = 0; i != p.coefficients.size(); ++i) {
     auto a = p.coefficients[i];
-    append(stream, a);
-    stream << var << "^" << i;
+    if(a != T{0}){
+      append(stream, a);
+      stream << var << "^" << i;
+    }
   }
   if(p.coefficients.empty()) {
     out << "0";
   }
   std::string s = stream.str();
-  s = std::regex_replace(s, std::regex("^\\+"), "");
-  s = std::regex_replace(s, std::regex(var + "\\^0"), "");
-  s = std::regex_replace(s, std::regex("\\^1"), "");
-  s = std::regex_replace(s, std::regex("1" + var), var);
+  s = std::regex_replace(s, std::regex("^\\+"), "");        // +1+x -> 1+x only at the beggining of the output
+  s = std::regex_replace(s, std::regex(var + "\\^0"), "");  // x^0  -> 1
+  s = std::regex_replace(s, std::regex("\\^1"), "");        // x^1  -> x
+  s = std::regex_replace(s, std::regex("1" + var), var);    // 1x   -> x
+
+  s = std::regex_replace(s, std::regex("^\\((.*)\\)[+-]"),"$1+"); // remove redundant parentheses for multivariable polynomials
+  s = std::regex_replace(s, std::regex("\\(([^+-]*)\\)"),"$1");
   out << s;
   return out;
 }
