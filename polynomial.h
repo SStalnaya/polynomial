@@ -20,7 +20,7 @@ class polynomial {
 
  public:
   std::string var;
-  // ------------------------------------------------ CONSTRUCTORS ------------------------------------------------ //
+  // --------------------------------------- CONSTRUCTORS --------------------------------------- //
   polynomial(std::vector<T> in) : coefficients(in) { this->remove_trailing_zeroes(); }
   polynomial(std::initializer_list<T> in) : coefficients(in) { this->remove_trailing_zeroes(); }
   template<class U>
@@ -93,7 +93,7 @@ class polynomial {
     }
     this->remove_trailing_zeroes();
   }
-  // ------------------------------------------------- OPERATORS -------------------------------------------------- //
+  // ---------------------------------------- OPERATORS ----------------------------------------- //
   polynomial operator*(polynomial p) const {
     polynomial<T> out;
     unsigned int counter1 = this->degree();
@@ -219,13 +219,14 @@ class polynomial {
     return out;
   }
 
-  // ------------------------------------------------ OTHER FUNCTIONS --------------------------------------------- //
+  // --------------------------------------- OTHER FUNCTIONS ------------------------------------ //
 
   int degree() const;
   template<class U>
   polynomial<U> monomial(U a, int b) const;
   void set_var(std::string s);
   void set_var(std::vector<std::string> list);
+  void set_var(std::initializer_list<std::string> list);
 
  private:
   void remove_trailing_zeroes();
@@ -241,12 +242,12 @@ void polynomial<T>::remove_trailing_zeroes() {
   // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
   // it is important to do this after all operations to ensure the next operations will be correct
   int i = this->degree();
-  while(this->coefficients[i] == T{0}) {
+  while(this->coefficients[i] == T{}) {
     this->coefficients.resize(i);
     --i;
     if(i == -1) break;
     if(i == 0) {
-      if(this->coefficients[0] == T{0}) {
+      if(this->coefficients[0] == T{}) {
         this->coefficients.resize(0);
       }
       break;
@@ -268,23 +269,27 @@ void polynomial<T>::set_var(std::string s) {
   this->var = s;
 }
 
-template <typename T>
-struct is_vector : std::false_type {
-};
+template<typename T>
+struct is_polynomial : std::false_type {};
 
-template <typename T>
-struct is_vector<std::vector<T>> : std::true_type {
-};
+template<typename T>
+struct is_polynomial<polynomial<T>> : std::true_type {};
 
 template<class T>
 void polynomial<T>::set_var(std::vector<std::string> list) {
   this->set_var(list[0]);
   list.erase(list.begin());
-  if constexpr(is_vector<T>::value) {
+  if constexpr(is_polynomial<T>::value) {
     for(auto& p : this->coefficients) {
       p.set_var(list);
     }
   }
+}
+
+template<class T>
+void polynomial<T>::set_var(std::initializer_list<std::string> list) {
+  std::vector<std::string> v(list);
+  this->set_var(v);
 }
 
 template<class T>
@@ -299,7 +304,6 @@ void append(std::ostringstream& stream, T a) {
 template<class T>
 void append(std::ostringstream& stream, std::complex<T> a) {
   stream << "+" << a;
-  std::cout << a << "\n";
 }
 
 template<class T>

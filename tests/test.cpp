@@ -174,11 +174,6 @@ TEST(operators, stream_output) {
   std::stringstream o10;
   o10 << p10;
   EXPECT_EQ(o10.str(), s10.str());
-  /*polynomial<int> p1 {};
-  std::stringstream s1 ("");
-  std::stringstream o1;
-  o1 << p1;
-  EXPECT_EQ(o1.str(), s1.str());*/
 }
 
 TEST(operators, multiplication) {
@@ -187,10 +182,18 @@ TEST(operators, multiplication) {
   polynomial<int> r1{1, 0, -1};
   EXPECT_EQ(p1 * q1, r1);
   polynomial<int> p2{1, 4, 2};
-
   polynomial<int> q2{};
   polynomial<int> r2{};
   EXPECT_EQ(p2 * q2, r2);
+}
+
+TEST(multivar, stream_output) {
+  polynomial<polynomial<std::complex<int>>> p1 {{{1,2}, {2,3}}, {{-1,-2}, {-2,-3}}};
+  p1.set_var({"z", "y"});
+  std::stringstream s1("((1,2)+(2,3)y)+((-1,-2)+(-2,-3)y)z");
+  std::stringstream o1;
+  o1 << p1;
+  EXPECT_EQ(o1.str(), s1.str());
 }
 
 int main(int argc, char **argv) {
