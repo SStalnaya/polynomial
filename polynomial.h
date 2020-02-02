@@ -33,16 +33,19 @@ public:
     this->remove_trailing_zeroes();
   }
   polynomial() {}
-  polynomial(std::string s) {           // initialize the polynomial with a string e.g. 3+x^4-2x^3+3x^3
+  polynomial(std::string s) {          
+    // initialize the polynomial with a string e.g. 3+x^4-2x^3+3x^3
     std::string term;
     s = std::regex_replace(s, std::regex("(.)-"), "$1+-");
     s = std::regex_replace(s, std::regex("\\+x"), "+1x");
     s = std::regex_replace(s, std::regex("-x"), "-1x");
     s.erase(std::remove_if(s.begin(), s.end(), [](unsigned char x){return isspace(x) || x == '{' || x == '}' || x == '*';}), s.end());
     std::stringstream t (s);
-    while(std::getline(t, term, '+')) { // divide into terms on the above example they will be 3, +x^4, -2x^3, 3x^3
+    // divide into terms on the above example they will be 3, +x^4, -2x^3, 3x^3
+    while(std::getline(t, term, '+')) { 
       std::stringstream tern (term);
-      std::pair<std::string, std::string> c;         // pair (coefficient, exponent) of the term
+      std::pair<std::string, std::string> c;         
+      // pair (coefficient, exponent) of the term
       std::string d;
       bool is_first = true;
       while(std::getline(tern, d, 'x')) {
@@ -148,8 +151,10 @@ public:
     return !(*this == p);
   }
 
-  polynomial<int> operator/(polynomial<int> p) const { // mathematically, p / q = s + r / q but we ignore the residue r and return s
-    if(p.degree() == -1) {                             // just like dividing ints
+  polynomial<int> operator/(polynomial<int> p) const { 
+    // mathematically, p / q = s + r / q but we ignore the residue r and return s
+    // just like dividing ints
+    if(p.degree() == -1) {                             
       throw std::domain_error("Division by 0!");
     }
     polynomial<ratio> residue (*this);
@@ -248,8 +253,10 @@ polynomial<T> operator*(U u, polynomial<T> p) {
 }
 
 template <class T>
-void polynomial<T>::remove_trailing_zeroes() {  // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
-  int i = this->degree();                       // it is important to do this after all operations to ensure the next operations will be correct
+void polynomial<T>::remove_trailing_zeroes() {  
+  // if the coeffient on the highest exponent is zero, shrink the coefficent vector to fit
+  // it is important to do this after all operations to ensure the next operations will be correct
+  int i = this->degree();                       
   while(this->coefficients[i] == T{0}) {
     this->coefficients.resize(i);
     --i;
@@ -264,10 +271,13 @@ void polynomial<T>::remove_trailing_zeroes() {  // if the coeffient on the highe
   return;
 }
 
+// the degree of p
+// this is the highest exponent on x, except when p is identically 0 when it is -1
+// in which case it should be interpreted as negative infinity
 template <class T>
-int polynomial<T>::degree() const {      // the degree of p
-  return this->coefficients.size() - 1;  // this is the highest exponent on x, except when p is identically 0 when it is -1
-}                                        // in which case it should be interpreted as negative infinity
+int polynomial<T>::degree() const {      
+  return this->coefficients.size() - 1;  
+}                                        
 
 template <class T>
 void polynomial<T>::set_var(std::string s) {
@@ -296,15 +306,12 @@ void append(std::ostringstream& stream, T a) {
 
 template <class T>
 void append(std::ostringstream& stream, polynomial<T> a) {
-  auto var = a.var;
-  if(var == "") {
-    var = "x";
-  }
   stream << "+(" << a << ")";
 }
 
 template <class T>
-std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print in a nice human readable format
+std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { 
+  // print in a nice human readable format
   auto var = p.var;
   if(var == "") {
     var = "x";
@@ -321,12 +328,13 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) { // print i
     out << "0";
   }
   std::string s = stream.str();
-  s = std::regex_replace(s, std::regex("^\\+"), "");        // +1+x -> 1+x only at the beggining of the output
+  s = std::regex_replace(s, std::regex("^\\+"), "");        // +1+x -> 1+x only at the beggining
   s = std::regex_replace(s, std::regex(var + "\\^0"), "");  // x^0  -> 1
   s = std::regex_replace(s, std::regex("\\^1"), "");        // x^1  -> x
   s = std::regex_replace(s, std::regex("1" + var), var);    // 1x   -> x
 
-  s = std::regex_replace(s, std::regex("^\\((.*)\\)[+-]"),"$1+"); // remove redundant parentheses for multivariable polynomials
+  // remove redundant parentheses for multivariable polynomials
+  s = std::regex_replace(s, std::regex("^\\((.*)\\)[+-]"),"$1+"); 
   s = std::regex_replace(s, std::regex("\\(([^+-]*)\\)"),"$1");
   out << s;
   return out;
@@ -359,8 +367,9 @@ U evaluate(polynomial<T> p, U x) { // evaluate P at x
 template <class T>
 void factor(polynomial<T> in) {
   // use the rational root test to eliminate linear factors
-  auto v1 = factor(in.coefficients.front() / std::gcd(in.coefficients.front(), in.coefficients.back()));
-  auto v2 = factor(in.coefficients.back() / std::gcd(in.coefficients.front(), in.coefficients.back()));
+  auto gcd = std::gcd(in.coefficients.front(), in.coefficients.back());
+  auto v1 = factor(in.coefficients.front() / gcd);
+  auto v2 = factor(in.coefficients.back() / gcd);
   for(auto p : v1) {
     for(auto q : v2) {
       if(evaluate(in, ratio(p, q)) == 0) {

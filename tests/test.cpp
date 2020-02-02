@@ -161,6 +161,12 @@ TEST(operators,stream_output) {
   std::stringstream o8;
   o8 << p8;
   EXPECT_EQ(o8.str(), s8.str());
+  polynomial<int> p9 {2,-1,-1};
+  p9.set_var("y");
+  std::stringstream s9 ("2-y-y^2");
+  std::stringstream o9;
+  o9 << p9;
+  EXPECT_EQ(o9.str(), s9.str());
   polynomial<int> p10 {-3,2,4};
   std::stringstream s10 ("-3+2x+4x^2");
   std::stringstream o10;
@@ -179,6 +185,7 @@ TEST(operators,multiplication) {
   polynomial<int> r1 {1,0,-1};
   EXPECT_EQ(p1 * q1, r1);
   polynomial<int> p2 {1,4, 2};
+
   polynomial<int> q2 {};
   polynomial<int> r2 {};
   EXPECT_EQ(p2 * q2, r2);
@@ -186,9 +193,5 @@ TEST(operators,multiplication) {
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
-  polynomial<int> p {1,2};
-  std::vector<polynomial<int>> v {p, p};
-  polynomial<polynomial<int>> multivar (v);
-  //std::cout << multivar << "\n";
   return RUN_ALL_TESTS();
 }
