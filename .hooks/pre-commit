@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+while read -r FILE; do
+    if [[ $FILE =~ ('.cpp')|('.h')$ ]]; then
+        clang-format -style=file -i "$FILE"
+    fi
+done < <(git diff --cached --name-only)
