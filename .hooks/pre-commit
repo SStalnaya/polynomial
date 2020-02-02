@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for FILE in $(git diff --cached --name-only)
+  do
+  if [[ $FILE == *.cpp ]]  || [[ $FILE == *.h ]]
+    then clang-format -style=file -i $FILE
+  fi
+done
