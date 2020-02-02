@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <complex>
 #include <initializer_list>
 #include <numeric>
 #include <ostream>
@@ -267,11 +268,19 @@ void polynomial<T>::set_var(std::string s) {
   this->var = s;
 }
 
+template <typename T>
+struct is_vector : std::false_type {
+};
+
+template <typename T>
+struct is_vector<std::vector<T>> : std::true_type {
+};
+
 template<class T>
 void polynomial<T>::set_var(std::vector<std::string> list) {
   this->set_var(list[0]);
   list.erase(list.begin());
-  if constexpr(std::is_compound<T>::value) {
+  if constexpr(is_vector<T>::value) {
     for(auto& p : this->coefficients) {
       p.set_var(list);
     }
@@ -285,6 +294,12 @@ void append(std::ostringstream& stream, T a) {
   } else {
     stream << a;
   }
+}
+
+template<class T>
+void append(std::ostringstream& stream, std::complex<T> a) {
+  stream << "+" << a;
+  std::cout << a << "\n";
 }
 
 template<class T>
@@ -317,8 +332,8 @@ std::ostream& operator<<(std::ostream& out, const polynomial<T>& p) {
   s = std::regex_replace(s, std::regex("1" + var), var);    // 1x   -> x
 
   // remove redundant parentheses for multivariable polynomials
-  s = std::regex_replace(s, std::regex("^\\((.*)\\)[+-]"), "$1+");
-  s = std::regex_replace(s, std::regex("\\(([^+-]*)\\)"), "$1");
+  s = std::regex_replace(s, std::regex("^\\(([^,]*)\\)[+-]"), "$1+");
+  s = std::regex_replace(s, std::regex("\\(([^+,-]*)\\)"), "$1");
   out << s;
   return out;
 }
