@@ -3,5 +3,7 @@
 while read -r FILE; do
     if [[ $FILE =~ ('.cpp')|('.h')$ ]]; then
         clang-format -style=file -i "$FILE"
+        git add "$FILE"
+        git commit --amend --no-edit
     fi
 done < <(git diff --cached --name-only)
